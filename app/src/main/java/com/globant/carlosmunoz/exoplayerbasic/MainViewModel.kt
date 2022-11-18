@@ -1,16 +1,34 @@
 package com.globant.carlosmunoz.exoplayerbasic
 
-import androidx.lifecycle.MutableLiveData
+import android.view.View
 import androidx.lifecycle.ViewModel
 
 class MainViewModel : ViewModel() {
 
-    private var isFullscreen: MutableLiveData<Boolean> = MutableLiveData(false)
-    val fullScreenStatus: Boolean
-        get() = isFullscreen.value!!
+    private var isFullscreen = false
+    private var showFullScreenButton = true
 
     fun setIsFullscreen(isFullscreen: Boolean) {
-        this.isFullscreen.postValue(isFullscreen)
+        this.isFullscreen = isFullscreen
+        this.showFullScreenButton = !isFullscreen
+    }
+
+    fun getIsFullScreen() = isFullscreen
+
+    fun getShowFullScreenButton(): Int {
+        return if (showFullScreenButton) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+    }
+
+    fun getShowMinimizeButton(): Int {
+        return if (showFullScreenButton) {
+            View.GONE
+        } else {
+            View.VISIBLE
+        }
     }
 
 }

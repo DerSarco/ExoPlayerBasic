@@ -1,13 +1,18 @@
 package com.globant.carlosmunoz.exoplayerbasic
 
 import android.content.pm.ActivityInfo
+import android.opengl.Visibility
 import android.os.Bundle
+import android.os.PersistableBundle
+import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelProvider
 import com.globant.carlosmunoz.exoplayerbasic.databinding.ActivityMainBinding
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -18,7 +23,7 @@ import kotlinx.coroutines.delay
 /**
  * If you want to add more functionality to your player, extend to Player.Listener interface
  */
-class MainActivity : AppCompatActivity(), Player.Listener {
+class MainActivity : AppCompatActivity() {
 
 
     /**
@@ -30,8 +35,10 @@ class MainActivity : AppCompatActivity(), Player.Listener {
             "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4"
     }
 
+    //TODO: Fix on landscape changed video keep playing
+
     private lateinit var binding: ActivityMainBinding
-    private val viewModel = MainViewModel()
+    private lateinit var viewModel: MainViewModel
 
     /**
      * I declared this globally just for achieve more scope in the class
@@ -41,8 +48,16 @@ class MainActivity : AppCompatActivity(), Player.Listener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         setupUI()
         setContentView(binding.root)
+
+    }
+
+
+    override fun onPostResume() {
+        super.onPostResume()
+        fullScreenConfig()
     }
 
     private fun setupUI() {
@@ -52,12 +67,15 @@ class MainActivity : AppCompatActivity(), Player.Listener {
         pvPlayer.apply {
             player = exoPlayer
         }
-        //TODO: Fix behaviour of fullscreen status
-        binding.imbFullscreen.setOnClickListener {
-            when (viewModel.fullScreenStatus) {
-                true -> showSystemUI()
-                false -> fullScreen()
-            }
+
+        binding.imbShowFullscreen.visibility = viewModel.getShowFullScreenButton()
+        binding.imbExitFullscreen.visibility = viewModel.getShowMinimizeButton()
+        binding.imbShowFullscreen.setOnClickListener {
+            fullScreen()
+        }
+
+        binding.imbExitFullscreen.setOnClickListener {
+            showSystemUI()
         }
     }
 
@@ -71,35 +89,34 @@ class MainActivity : AppCompatActivity(), Player.Listener {
             .build()
         exoPlayer.apply {
             setMediaItem(mediaItem)
-            addListener(this@MainActivity)
             prepare()
         }
     }
 
-    /**
-     * This is not mandatory, i just checking how the listener works.
-     */
-
-
     private fun fullScreen() {
+        viewModel.setIsFullscreen(true)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        WindowInsetsControllerCompat(window, binding.root).let { controller ->
-            controller.hide(WindowInsetsCompat.Type.systemBars())
-            controller.systemBarsBehavior =
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        }
-        viewModel.setIsFullscreen(true)
-
     }
 
     private fun showSystemUI() {
+        viewModel.setIsFullscreen(false)
         WindowCompat.setDecorFitsSystemWindows(window, true)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        WindowInsetsControllerCompat(
-            window,
-            binding.root
-        ).show(WindowInsetsCompat.Type.systemBars())
-        viewModel.setIsFullscreen(false)
+    }
+
+    private fun fullScreenConfig() {
+        if (viewModel.getIsFullScreen()) {
+            WindowInsetsControllerCompat(window, binding.activityMain).let { controller ->
+                controller.hide(WindowInsetsCompat.Type.systemBars())
+                controller.systemBarsBehavior =
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            WindowInsetsControllerCompat(
+                window,
+                binding.activityMain
+            ).show(WindowInsetsCompat.Type.systemBars())
+        }
     }
 }

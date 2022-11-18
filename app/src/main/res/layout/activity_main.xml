@@ -18,11 +18,23 @@
         />
 
     <ImageButton
-        android:id="@+id/imb_fullscreen"
+        android:id="@+id/imb_show_fullscreen"
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_margin="16dp"
-        android:src="@drawable/expand_24"
+        android:src="@drawable/ic_open"
+        android:background="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <ImageButton
+        android:id="@+id/imb_exit_fullscreen"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_margin="16dp"
+        android:visibility="gone"
+        android:src="@drawable/ic_close"
         android:background="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
