@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity(), Player.Listener {
         pvPlayer.apply {
             player = exoPlayer
         }
-
+        //TODO: Fix behaviour of fullscreen status
         binding.imbFullscreen.setOnClickListener {
             when (viewModel.fullScreenStatus) {
                 true -> showSystemUI()
