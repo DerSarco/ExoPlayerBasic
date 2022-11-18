@@ -1,13 +1,19 @@
 package com.globant.carlosmunoz.exoplayerbasic
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import com.globant.carlosmunoz.exoplayerbasic.databinding.ActivityMainBinding
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 
 /**
  * If you want to add more functionality to your player, extend to Player.Listener interface
@@ -25,9 +31,10 @@ class MainActivity : AppCompatActivity(), Player.Listener {
     }
 
     private lateinit var binding: ActivityMainBinding
+    private val viewModel = MainViewModel()
 
     /**
-     * I declared this globally just for achieve more scoope in the class
+     * I declared this globally just for achieve more scope in the class
      */
     private lateinit var exoPlayer: ExoPlayer
 
@@ -45,7 +52,13 @@ class MainActivity : AppCompatActivity(), Player.Listener {
         pvPlayer.apply {
             player = exoPlayer
         }
-        exoPlayer.play()
+
+        binding.imbFullscreen.setOnClickListener {
+            when (viewModel.fullScreenStatus) {
+                true -> showSystemUI()
+                false -> fullScreen()
+            }
+        }
     }
 
     /**
@@ -66,10 +79,27 @@ class MainActivity : AppCompatActivity(), Player.Listener {
     /**
      * This is not mandatory, i just checking how the listener works.
      */
-    override fun onIsPlayingChanged(isPlaying: Boolean) {
-        when (isPlaying) {
-            true -> Toast.makeText(this, "Playing!", Toast.LENGTH_SHORT).show()
-            false -> Toast.makeText(this, "Not Playing", Toast.LENGTH_SHORT).show()
+
+
+    private fun fullScreen() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        WindowInsetsControllerCompat(window, binding.root).let { controller ->
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
+        viewModel.setIsFullscreen(true)
+
+    }
+
+    private fun showSystemUI() {
+        WindowCompat.setDecorFitsSystemWindows(window, true)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        WindowInsetsControllerCompat(
+            window,
+            binding.root
+        ).show(WindowInsetsCompat.Type.systemBars())
+        viewModel.setIsFullscreen(false)
     }
 }
