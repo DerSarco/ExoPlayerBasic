@@ -1,10 +1,10 @@
 # ExoPlayer Basic Example.
 
-##Used Dependencies
+## Used Dependencies
 
 - implementation 'com.google.android.exoplayer:exoplayer:2.X.X
 
-##Usage
+## Usage
 
 Just compile and run, there is a video example added to the mediaplaylist so you can see how this works.
 
