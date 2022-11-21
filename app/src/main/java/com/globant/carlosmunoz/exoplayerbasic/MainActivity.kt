@@ -107,22 +107,25 @@ class MainActivity : AppCompatActivity(), Player.Listener {
     }
 
     private fun fullScreenConfig() {
-        if (viewModel.getIsFullScreen()) {
-            WindowInsetsControllerCompat(window, binding.activityMain).let { controller ->
-                controller.hide(WindowInsetsCompat.Type.systemBars())
-                controller.systemBarsBehavior =
-                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        when (viewModel.getIsFullScreen()) {
+            true -> {
+                WindowInsetsControllerCompat(window, binding.activityMain).let { controller ->
+                    controller.hide(WindowInsetsCompat.Type.systemBars())
+                    controller.systemBarsBehavior =
+                        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                }
             }
-        } else {
-            WindowInsetsControllerCompat(
-                window,
-                binding.activityMain
-            ).show(WindowInsetsCompat.Type.systemBars())
+            false -> {
+                WindowInsetsControllerCompat(
+                    window,
+                    binding.activityMain
+                ).show(WindowInsetsCompat.Type.systemBars())
+            }
         }
-
         if (viewModel.getIsPlaying()) {
             exoPlayer.seekTo(viewModel.getCurrentWindow(), viewModel.getCurrentTime())
             exoPlayer.play()
         }
     }
 }
+
